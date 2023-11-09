@@ -1,2 +1,2 @@
 # Aluguel-de-carros
-Estudo de api REST de uma locadora 
+Simples locadora para estudar api REST
