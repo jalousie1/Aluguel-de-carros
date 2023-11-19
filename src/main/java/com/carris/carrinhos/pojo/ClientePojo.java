@@ -1,8 +1,14 @@
 package com.carris.carrinhos.pojo;
 
+import jakarta.validation.constraints.NotNull;
+
 public class ClientePojo {
     private Long id;
+
+    @NotNull
     private String nome;
+
+    @NotNull
     private String cpf;
 
     public Long getId() {

@@ -2,8 +2,12 @@ package com.carris.carrinhos.controller;
 
 import com.carris.carrinhos.entity.AluguelEntity;
 import com.carris.carrinhos.pojo.AluguelPojo;
-import com.carris.carrinhos.repository.AluguelRepository;
+import com.carris.carrinhos.service.AluguelService;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,66 +15,67 @@ import java.util.List;
 @RestController
 @RequestMapping("/alugueis")
 public class AluguelController {
+
     @Autowired
-    private AluguelRepository aluguelRepository;
+    private AluguelService aluguelService;
 
     @GetMapping
+    @Operation(summary = "Mostra todos os aluguéis")
     public List<AluguelEntity> getAllAlugueis() {
-        return aluguelRepository.findAll();
+        return aluguelService.getAllAlugueis();
     }
 
     @GetMapping("/{id}")
-    public AluguelEntity getAluguel(@PathVariable Long id) {
-        return aluguelRepository.findById(id).orElse(null);
+    @Operation(summary = "Obtem aluguel por id")
+    public ResponseEntity<AluguelEntity> getAluguel(@PathVariable Long id) {
+        AluguelEntity aluguelEntity = aluguelService.getAluguel(id);
+        if (aluguelEntity != null) {
+            return ResponseEntity.ok(aluguelEntity);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping
-    public AluguelEntity createAluguel(@RequestBody AluguelPojo aluguel) {
-        AluguelEntity aluguelEntity = new AluguelEntity();
-        aluguelEntity.setClienteId(aluguel.getClienteId());
-        aluguelEntity.setCarroId(aluguel.getCarroId());
-        aluguelEntity.setDataAluguel(aluguel.getDataAluguel());
-        aluguelEntity.setDataDevolucao(aluguel.getDataDevolucao());
-        aluguelEntity.setValorPago(aluguel.getValorPago());
-        return aluguelRepository.save(aluguelEntity);
+    @Operation(summary = "Cria novo aluguel")
+    public ResponseEntity<AluguelEntity> createAluguel(@Valid @RequestBody AluguelPojo aluguelPojo) {
+        AluguelEntity aluguelEntity = aluguelService.createAluguel(aluguelPojo);
+        return ResponseEntity.status(HttpStatus.CREATED).body(aluguelEntity);
     }
 
     @PutMapping("/{id}")
-    public AluguelEntity updateAluguel(@PathVariable Long id, @RequestBody AluguelPojo aluguel) {
-        AluguelEntity aluguelEntity = aluguelRepository.findById(id).orElse(null);
+    @Operation(summary = "Atualiza aluguel")
+    public ResponseEntity<AluguelEntity> updateAluguel(@PathVariable Long id, @Valid @RequestBody AluguelPojo aluguelPojo) {
+        AluguelEntity aluguelEntity = aluguelService.updateAluguel(id, aluguelPojo);
         if (aluguelEntity != null) {
-            aluguelEntity.setClienteId(aluguel.getClienteId());
-            aluguelEntity.setCarroId(aluguel.getCarroId());
-            aluguelEntity.setDataAluguel(aluguel.getDataAluguel());
-            aluguelEntity.setDataDevolucao(aluguel.getDataDevolucao());
-            aluguelEntity.setValorPago(aluguel.getValorPago());
-            return aluguelRepository.save(aluguelEntity);
+            return ResponseEntity.ok(aluguelEntity);
         }
-        return null;
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
-    public void deleteAluguel(@PathVariable Long id) {
-        aluguelRepository.deleteById(id);
+    @Operation(summary = "Deleta aluguel")
+    public ResponseEntity<Void> deleteAluguel(@PathVariable Long id) {
+        aluguelService.deleteAluguel(id);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{id}/realizarPagamento")
-    public AluguelEntity realizarPagamento(@PathVariable Long id) {
-        AluguelEntity aluguelEntity = aluguelRepository.findById(id).orElse(null);
+    @Operation(summary = "Marca o aluguel como pago")
+    public ResponseEntity<AluguelEntity> realizarPagamento(@PathVariable Long id) {
+        AluguelEntity aluguelEntity = aluguelService.realizarPagamento(id);
         if (aluguelEntity != null) {
-            aluguelEntity.setPagamentoRealizado(true);
-            return aluguelRepository.save(aluguelEntity);
+            return ResponseEntity.ok(aluguelEntity);
         }
-        return null;
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/carrosAlugados")
     public List<AluguelEntity> getCarrosAlugados() {
-        return aluguelRepository.findAllByDataDevolucaoIsNull();
+        return aluguelService.getCarrosAlugados();
     }
 
     @GetMapping("/carrosAlugados/{clienteId}")
     public List<AluguelEntity> getCarrosAlugadosPorCliente(@PathVariable Long clienteId) {
-        return aluguelRepository.findAllByClienteIdAndDataDevolucaoIsNull(clienteId);
+        return aluguelService.getCarrosAlugadosPorCliente(clienteId);
     }
 }

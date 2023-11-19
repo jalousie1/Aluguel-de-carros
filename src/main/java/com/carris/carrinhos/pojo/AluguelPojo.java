@@ -1,10 +1,15 @@
 package com.carris.carrinhos.pojo;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.Date;
 
 public class AluguelPojo {
+
     private Long id;
+    @NotNull
     private Long clienteId;
+    @NotNull
     private Long carroId;
     private Date dataAluguel;
     private Date dataDevolucao;
@@ -57,5 +62,33 @@ public class AluguelPojo {
 
     public void setValorPago(Double valorPago) {
         this.valorPago = valorPago;
+    }
+
+    public boolean isValid() {
+        if (clienteId == null || clienteId < 1) {
+            return false;
+        }
+
+        // Valida o carroId
+        if (carroId == null || carroId < 1) {
+            return false;
+        }
+
+        // Valida a data de aluguel
+        if (dataAluguel == null) {
+            return false;
+        }
+
+        // Valida a data de devolução
+        if (dataDevolucao != null && dataDevolucao.before(dataAluguel)) {
+            return false;
+        }
+
+        // Valida o valor pago
+        if (valorPago != null && valorPago < 0) {
+            return false;
+        }
+
+        return true;
     }
 }

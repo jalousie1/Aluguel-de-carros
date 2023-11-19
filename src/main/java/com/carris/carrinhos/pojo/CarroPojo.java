@@ -1,18 +1,18 @@
 package com.carris.carrinhos.pojo;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 public class CarroPojo {
-    private Long id;
+
+    @NotNull
     private String modelo;
+
+    @NotNull
     private String marca;
+
+    @NotNull
     private String placa;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getModelo() {
         return modelo;

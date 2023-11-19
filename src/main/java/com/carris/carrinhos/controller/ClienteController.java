@@ -2,8 +2,10 @@ package com.carris.carrinhos.controller;
 
 import com.carris.carrinhos.entity.ClienteEntity;
 import com.carris.carrinhos.pojo.ClientePojo;
-import com.carris.carrinhos.repository.ClienteRepository;
+import com.carris.carrinhos.service.ClienteService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,40 +13,38 @@ import java.util.List;
 @RestController
 @RequestMapping("/clientes")
 public class ClienteController {
+
     @Autowired
-    private ClienteRepository clienteRepository;
+    private ClienteService clienteService;
 
     @GetMapping
-    public List<ClienteEntity> getAllClientes() {
-        return clienteRepository.findAll();
+    @Operation(summary = "Pega a lista dos clientes")
+    public ResponseEntity<List<ClienteEntity>> getAllClientes() {
+        return ResponseEntity.ok(clienteService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ClienteEntity getCliente(@PathVariable Long id) {
-        return clienteRepository.findById(id).orElse(null);
+    @Operation(summary = "Mostra o cliente por ID")
+    public ResponseEntity<ClienteEntity> getCliente(@PathVariable Long id) {
+        return ResponseEntity.of(clienteService.findById(id));
     }
 
     @PostMapping
-    public ClienteEntity createCliente(@RequestBody ClientePojo cliente) {
-        ClienteEntity clienteEntity = new ClienteEntity();
-        clienteEntity.setNome(cliente.getNome());
-        clienteEntity.setCpf(cliente.getCpf());
-        return clienteRepository.save(clienteEntity);
+    @Operation(summary = "Criar cliente")
+    public ResponseEntity<ClienteEntity> createCliente(@RequestBody ClientePojo cliente) {
+        return ResponseEntity.ok(clienteService.save(cliente));
     }
 
     @PutMapping("/{id}")
-    public ClienteEntity updateCliente(@PathVariable Long id, @RequestBody ClientePojo cliente) {
-        ClienteEntity clienteEntity = clienteRepository.findById(id).orElse(null);
-        if (clienteEntity != null) {
-            clienteEntity.setNome(cliente.getNome());
-            clienteEntity.setCpf(cliente.getCpf());
-            return clienteRepository.save(clienteEntity);
-        }
-        return null;
+    @Operation(summary = "Atualizar cliente por ID")
+    public ResponseEntity<ClienteEntity> updateCliente(@PathVariable Long id, @RequestBody ClientePojo cliente) {
+        return ResponseEntity.of(clienteService.update(id, cliente));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCliente(@PathVariable Long id) {
-        clienteRepository.deleteById(id);
+    @Operation(summary = "Deleta o cliente")
+    public ResponseEntity<Void> deleteCliente(@PathVariable Long id) {
+        clienteService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }
