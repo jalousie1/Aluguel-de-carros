@@ -1,2 +1,2 @@
 # Aluguel-de-carros
-Simples locadora para estudar api REST
+Locadora de carros usando SpringBoot 
